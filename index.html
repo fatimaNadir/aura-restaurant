@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA | Grand Ultra-Luxury 3D Restaurant Experience</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #07080a;
+      color: #f1f1f1;
+      overflow-x: hidden;
+    }
+    .font-serif-luxury {
+      font-family: 'Cinzel', serif;
+    }
+    .video-bg-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      overflow: hidden;
+      background: #07080a;
+    }
+    .video-bg-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.32) contrast(1.15) saturate(1.2);
+    }
+    #webgl-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .glass-card {
+      background: rgba(15, 17, 23, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      transition: all 0.4s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(212, 175, 55, 0.8);
+      box-shadow: 0 20px 40px rgba(212, 175, 55, 0.25);
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fff3a8 0%, #d4af37 50%, #aa7c11 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-btn {
+      background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+      transition: all 0.3s ease;
+    }
+    .gold-btn:hover {
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+      transform: translateY(-3px);
+    }
+    .marquee-container {
+      display: flex;
+      overflow: hidden;
+      user-select: none;
+      gap: 2rem;
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+    .marquee-content {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-around;
+      min-width: 100%;
+      gap: 2rem;
+      animation: scroll 40s linear infinite;
+    }
+    .marquee-container:hover .marquee-content {
+      animation-play-state: paused;
+    }
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Video -->
+  <div class="video-bg-container">
+    <video autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80">
+      <source src="https://assets.mixkit.co/videos/preview/mixkit-luxury-restaurant-with-warm-lights-and-tables-41551-large.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- 3D Gold Particles Canvas -->
+  <canvas id="webgl-bg"></canvas>
+
+  <!-- Navigation Bar -->
+  <nav class="fixed top-0 left-0 w-full z-50 px-8 py-5 flex justify-between items-center glass-card border-b border-amber-500/10">
+    <a href="#" class="text-3xl font-serif-luxury font-bold tracking-widest gold-gradient-text">AURA</a>
+    <div class="hidden md:flex space-x-8 text-xs font-semibold tracking-widest uppercase text-gray-300">
+      <a href="#about" class="hover:text-[#d4af37] transition">About Us</a>
+      <a href="#menu-stream" class="hover:text-[#d4af37] transition">3D Menu</a>
+      <a href="#couples-lounge" class="hover:text-[#d4af37] transition">Testimonials</a>
+      <a href="#manager-portal" class="hover:text-[#d4af37] transition text-[#d4af37]">Orders Dashboard</a>
+      <a href="#contact-us" class="hover:text-[#d4af37] transition">Contact Us</a>
+    </div>
+    <a href="#reserve" class="gold-btn px-7 py-2.5 rounded-full text-black font-bold text-xs tracking-wider uppercase">Book VIP Table</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 pt-20 relative">
+    <div class="max-w-5xl">
+      <span class="text-[#d4af37] tracking-[0.4em] text-xs uppercase font-bold block mb-4">International Flagship Dining • Mayfair London & Manhattan NYC</span>
+      <h1 class="text-5xl md:text-8xl font-serif-luxury font-black leading-tight mb-6">
+        Step Into <span class="gold-gradient-text">Unrivaled</span> Luxury
+      </h1>
+      <p class="text-gray-200 text-lg md:text-2xl font-light leading-relaxed max-w-3xl mx-auto mb-10 drop-shadow-md">
+        Where world-class culinary masterpieces meet cinematic 3D ambiance. Order online with live tracking directly to the restaurant kitchen.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-6">
+        <a href="#menu-stream" class="gold-btn px-9 py-4 rounded-full text-black font-extrabold tracking-wider uppercase text-sm">Explore Moving Menu</a>
+        <a href="#about" class="glass-card px-9 py-4 rounded-full text-white font-bold tracking-wider uppercase text-sm border border-white/20 hover:bg-white/10">About Our Heritage</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about" class="py-28 px-6 max-w-7xl mx-auto">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="space-y-6">
+        <span class="text-[#d4af37] uppercase tracking-[0.3em] text-xs font-bold block">Our Heritage & Story</span>
+        <h2 class="text-4xl md:text-5xl font-serif-luxury font-bold leading-tight">Redefining International Fine Dining Since 2012</h2>
+        <p class="text-gray-300 text-sm leading-relaxed font-light">
+          AURA was founded with a singular vision: to blend Michelin-star culinary artistry with dynamic 3D spatial environments. Situated in London’s Mayfair and Manhattan, New York, our estate hosts world leaders, international icons, and connoisseurs of haute cuisine.
+        </p>
+        <div class="grid grid-cols-2 gap-6 pt-4">
+          <div class="glass-card p-6 rounded-2xl border border-[#d4af37]/30">
+            <h3 class="text-3xl font-serif-luxury font-bold gold-gradient-text">3 Michelin</h3>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider">Starred Excellence</p>
+          </div>
+          <div class="glass-card p-6 rounded-2xl border border-[#d4af37]/30">
+            <h3 class="text-3xl font-serif-luxury font-bold gold-gradient-text">100% Organic</h3>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider">Locally Sourced Ingredients</p>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card p-4 rounded-3xl relative overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1000&q=80" alt="Restaurant Story" class="rounded-2xl w-full h-[420px] object-cover">
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Moving 3D Menu Section -->
+  <section id="menu-stream" class="py-24 relative overflow-hidden">
+    <div class="text-center max-w-3xl mx-auto mb-16 px-4">
+      <span class="text-[#d4af37] uppercase tracking-[0.3em] text-xs font-bold block mb-2">Non-Stop Motion Stream</span>
+      <h2 class="text-4xl md:text-6xl font-serif-luxury font-bold">12 Signature Dishes in Motion</h2>
+      <p class="text-gray-300 text-sm mt-4">Hover to pause • Click any dish to inspect details & place instant online delivery orders!</p>
+    </div>
+
+    <!-- Infinite Scroll Container -->
+    <div class="marquee-container py-6">
+      <div class="marquee-content" id="menu-track-1"></div>
+      <div class="marquee-content" aria-hidden="true" id="menu-track-2"></div>
+    </div>
+  </section>
+
+  <!-- Guest Testimonials & Image Box Section -->
+  <section id="couples-lounge" class="py-28 px-6 max-w-7xl mx-auto">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      
+      <!-- Left Side: Guest Stories & Reviews -->
+      <div class="space-y-8">
+        <div>
+          <span class="text-[#d4af37] uppercase tracking-[0.3em] text-xs font-bold block mb-2">Guest Stories</span>
+          <h2 class="text-4xl md:text-5xl font-serif-luxury font-bold">Our guests <br><span class="gold-gradient-text">love it here.</span></h2>
+        </div>
+
+        <div class="space-y-6">
+          <div class="glass-card p-6 rounded-2xl space-y-3">
+            <div class="flex items-center space-x-1 text-[#d4af37] text-xs">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-gray-300 italic text-xs leading-relaxed">
+              "The online ordering system is lightning fast, and dining in the coffee lounge while watching the 3D moving menu was an absolute fairytale experience."
+            </p>
+            <span class="text-[11px] font-bold text-[#d4af37] block">— Lady Eleanor Vance <span class="text-gray-500 font-normal">| London Fine Dining Club</span></span>
+          </div>
+
+          <div class="glass-card p-6 rounded-2xl space-y-3">
+            <div class="flex items-center space-x-1 text-[#d4af37] text-xs">
+              <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-gray-300 italic text-xs leading-relaxed">
+              "Ordered the Miyazaki Wagyu online and it arrived fresh at our VIP suite within minutes. Top tier international service!"
+            </p>
+            <span class="text-[11px] font-bold text-[#d4af37] block">— Arthur Pendelton <span class="text-gray-500 font-normal">| Food Critic</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Luxury Interior Image Box (Video Replaced) -->
+      <div class="glass-card p-4 rounded-3xl relative overflow-hidden border border-[#d4af37]/40 shadow-2xl">
+        <div class="relative h-[480px] rounded-2xl overflow-hidden bg-black">
+          <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=80" alt="Luxury Restaurant Ambiance" class="w-full h-full object-cover transform hover:scale-105 transition duration-700">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+          <div class="absolute bottom-6 left-6 right-6 z-10">
+            <span class="bg-[#d4af37] text-black font-extrabold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+              Luxury Restaurant Ambiance
+            </span>
+            <h4 class="text-lg font-serif-luxury font-bold text-white mt-2">
+              Grand 3D Restaurant Interior Experience
+            </h4>
+            <p class="text-xs text-gray-300 mt-1">
+              Warm lighting, elegant dining tables, and a luxurious restaurant atmosphere.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Manager Real-Time Orders Dashboard Section -->
+  <section id="manager-portal" class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="glass-card p-8 md:p-12 rounded-3xl border border-[#d4af37]/40">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-white/10 pb-6">
+        <div>
+          <span class="text-[#d4af37] text-xs font-bold uppercase tracking-widest">Admin / Kitchen Portal</span>
+          <h2 class="text-3xl font-serif-luxury font-bold text-white mt-1">Live Restaurant Orders Dashboard</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Live System Active</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-white/10 text-xs text-[#d4af37] uppercase tracking-wider">
+              <th class="py-4 px-4">Order ID</th>
+              <th class="py-4 px-4">Customer Name</th>
+              <th class="py-4 px-4">Phone / Contact</th>
+              <th class="py-4 px-4">Ordered Dish</th>
+              <th class="py-4 px-4">Amount</th>
+              <th class="py-4 px-4">Status</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body" class="text-sm text-gray-300">
+            <tr class="border-b border-white/5">
+              <td colspan="6" class="text-center py-6 text-gray-500 italic">No online orders placed yet in this session. Try ordering a dish above!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Us Section -->
+  <section id="contact-us" class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <span class="text-[#d4af37] uppercase tracking-[0.3em] text-xs font-bold block mb-2">Get In Touch</span>
+      <h2 class="text-4xl md:text-5xl font-serif-luxury font-bold">Contact Our Concierge</h2>
+      <p class="text-gray-300 text-sm mt-3">We welcome inquiries for private dining, corporate galas, and international concierge reservations.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="glass-card p-8 rounded-3xl space-y-6">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-[#d4af37]/20 border border-[#d4af37] flex items-center justify-center text-[#d4af37]"><i class="fa-solid fa-location-dot"></i></div>
+          <div>
+            <h4 class="font-serif-luxury font-bold text-white text-base">London Flagship</h4>
+            <p class="text-xs text-gray-400">14 Berkeley Square, Mayfair, London UK</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-[#d4af37]/20 border border-[#d4af37] flex items-center justify-center text-[#d4af37]"><i class="fa-solid fa-phone"></i></div>
+          <div>
+            <h4 class="font-serif-luxury font-bold text-white text-base">Phone & WhatsApp</h4>
+            <p class="text-xs text-gray-400">+44 20 7946 0912 / +1 212 555 0198</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-[#d4af37]/20 border border-[#d4af37] flex items-center justify-center text-[#d4af37]"><i class="fa-solid fa-envelope"></i></div>
+          <div>
+            <h4 class="font-serif-luxury font-bold text-white text-base">Email Inquiry</h4>
+            <p class="text-xs text-gray-400">concierge@aura-dining.com</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card p-8 rounded-3xl lg:col-span-2">
+        <form onsubmit="event.preventDefault(); alert('Message sent successfully! Our concierge team will reply within 1 hour.');" class="space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <input type="text" placeholder="Your Name" required class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+            <input type="email" placeholder="Your Email" required class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+          </div>
+          <input type="text" placeholder="Subject / Private Event Type" class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+          <textarea rows="4" placeholder="Your Message..." required class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#d4af37]"></textarea>
+          <button type="submit" class="gold-btn w-full py-3.5 rounded-xl text-black font-extrabold uppercase tracking-wider text-xs">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reservation Section -->
+  <section id="reserve" class="py-24 px-6 max-w-4xl mx-auto">
+    <div class="glass-card p-10 md:p-14 rounded-3xl border border-[#d4af37]/30">
+      <div class="text-center mb-10">
+        <span class="text-[#d4af37] uppercase tracking-widest text-xs font-bold">Exclusive Access</span>
+        <h2 class="text-4xl font-serif-luxury font-bold mt-2">Reserve Your Mansion Experience</h2>
+      </div>
+
+      <form onsubmit="event.preventDefault(); alert('VIP Reservation Request Received! Our concierge will contact you shortly.');" class="space-y-6">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Full Name</label>
+            <input type="text" placeholder="Lord Jonathan Sterling" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]">
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Email Address</label>
+            <input type="email" placeholder="sterling@mansion.co.uk" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]">
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <div>
+            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Guests</label>
+            <select class="w-full bg-[#12141a] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]">
+              <option>2 Guests (Coffee Lounge)</option>
+              <option>4 Guests (Mansion Hall)</option>
+              <option>6+ Guests (VIP Royal Suite)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Date</label>
+            <input type="date" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]">
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Time</label>
+            <select class="w-full bg-[#12141a] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37]">
+              <option>19:00 PM</option>
+              <option>20:30 PM</option>
+              <option>22:00 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="gold-btn w-full py-4 rounded-xl text-black font-extrabold uppercase tracking-widest text-sm mt-4">Confirm VIP Table</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Interactive Item Details & Online Order Modal -->
+  <div id="item-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4">
+    <div class="glass-card max-w-2xl w-full p-8 rounded-3xl relative">
+      <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="modal-body-content" class="grid md:grid-cols-2 gap-6 items-center"></div>
+    </div>
+  </div>
+
+  <footer class="py-8 text-center border-t border-white/10 text-xs text-gray-400">
+    <p>© 2026 AURA Mansion International • London & Manhattan Fine-Dining Group.</p>
+  </footer>
+
+  <!-- Script Logic -->
+  <script>
+    const menuItems = [
+      { id: 1, title: "A5 Miyazaki Wagyu", price: "$180", img: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80", desc: "Seared Miyazaki Wagyu with black truffle glaze, smoked oak marrow butter, and gold leaf." },
+      { id: 2, title: "Imperial Caviar Tart", price: "$145", img: "https://images.unsplash.com/photo-1579372786545-d24232daf58c?auto=format&fit=crop&w=600&q=80", desc: "Beluga caviar served over crisp gold pastry shell with whipped crème fraîche." },
+      { id: 3, title: "Atlantic Lobster Thermidor", price: "$160", img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80", desc: "Poached Maine lobster with cognac reduction and hand-rolled squid-ink pasta." },
+      { id: 4, title: "Truffle Glazed Duck", price: "$120", img: "https://images.unsplash.com/photo-1514944288352-fffac99f0bdf?auto=format&fit=crop&w=600&q=80", desc: "Slow roasted duck breast with lavender honey glaze and black winter truffles." },
+      { id: 5, title: "Golden Chilean Sea Bass", price: "$135", img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80", desc: "Pan-seared sea bass over saffron risotto broth with micro herb emulsion." },
+      { id: 6, title: "Smoked Wagyu Burger", price: "$95", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80", desc: "Ground Wagyu beef, aged Gruyère, caramelized shallots, brioche toasted with 24k gold dust." },
+      { id: 7, title: "Gold Dust Macarons", price: "$75", img: "https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=600&q=80", desc: "French macarons filled with Valrhona chocolate ganache and edible gold flakes." },
+      { id: 8, title: "King Crab Leg Stack", price: "$175", img: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=600&q=80", desc: "Alaskan king crab legs basted in garlic clarified butter with citrus caviar." },
+      { id: 9, title: "Artisanal Truffle Pasta", price: "$110", img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=600&q=80", desc: "Tagliolini tossed in wheel Parmesan with fresh shaved Italian white truffles." },
+      { id: 10, title: "Valrhona Chocolate Sphere", price: "$85", img: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=600&q=80", desc: "Melted hot caramel poured over dark chocolate sphere with hazelnut praline." },
+      { id: 11, title: "Saffron Champagne Cocktail", price: "$65", img: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80", desc: "Dom Pérignon vintage champagne infused with Persian saffron and edible glitter." },
+      { id: 12, title: "Smoked Vintage Old Fashioned", price: "$55", img: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=600&q=80", desc: "Aged bourbon infused with hickory wood smoke, spiced bitters, and gold ice sphere." }
+    ];
+
+    let liveOrders = [];
+
+    function renderMenuTracks() {
+      const track1 = document.getElementById('menu-track-1');
+      const track2 = document.getElementById('menu-track-2');
+
+      const itemsHTML = menuItems.map(item => `
+        <div onclick="openModal(${item.id})" class="glass-card p-5 rounded-2xl w-72 flex-shrink-0 cursor-pointer transform transition hover:scale-105 hover:-translate-y-2 border border-amber-500/20">
+          <div class="h-44 rounded-xl overflow-hidden mb-4 relative">
+            <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+            <span class="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#d4af37] border border-[#d4af37]/40">${item.price}</span>
+          </div>
+          <h3 class="text-xl font-serif-luxury font-bold text-white mb-1 truncate">${item.title}</h3>
+          <p class="text-gray-400 text-xs line-clamp-2 leading-relaxed mb-3">${item.desc}</p>
+          <span class="text-[#d4af37] text-xs font-bold uppercase tracking-wider flex items-center gap-1">Order Online <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+        </div>
+      `).join('');
+
+      track1.innerHTML = itemsHTML;
+      track2.innerHTML = itemsHTML;
+    }
+    renderMenuTracks();
+
+    function openModal(id) {
+      const item = menuItems.find(i => i.id === id);
+      if(!item) return;
+
+      const modalContent = `
+        <img src="${item.img}" alt="${item.title}" class="w-full h-64 object-cover rounded-2xl border border-[#d4af37]/40">
+        <div>
+          <span class="text-xs font-bold text-[#d4af37] uppercase tracking-widest block mb-1">Instant Online Delivery</span>
+          <h3 class="text-2xl font-serif-luxury font-bold text-white mb-1">${item.title}</h3>
+          <p class="text-xl font-bold gold-gradient-text mb-3">${item.price}</p>
+          <p class="text-gray-300 text-xs leading-relaxed mb-4">${item.desc}</p>
+          
+          <form onsubmit="submitOnlineOrder(event, '${item.title}', '${item.price}')" class="space-y-3">
+            <input type="text" id="cust-name" placeholder="Your Full Name" required class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+            <input type="tel" id="cust-phone" placeholder="Phone Number / WhatsApp" required class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d4af37]">
+            <button type="submit" class="gold-btn w-full py-3 rounded-xl text-black font-extrabold uppercase text-xs tracking-wider">Confirm & Send to Kitchen</button>
+          </form>
+        </div>
+      `;
+      document.getElementById('modal-body-content').innerHTML = modalContent;
+      document.getElementById('item-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('item-modal').classList.add('hidden');
+    }
+
+    function submitOnlineOrder(e, dishName, dishPrice) {
+      e.preventDefault();
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const orderId = 'AUR-' + Math.floor(1000 + Math.random() * 9000);
+
+      const newOrder = {
+        id: orderId,
+        name: name,
+        phone: phone,
+        dish: dishName,
+        price: dishPrice,
+        status: 'Confirmed & Cooking'
+      };
+
+      liveOrders.unshift(newOrder);
+      updateManagerDashboard();
+      closeModal();
+
+      alert(`Order Success! Order ID: ${orderId} has been confirmed and sent directly to the Manager Dashboard.`);
+      document.getElementById('manager-portal').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function updateManagerDashboard() {
+      const tbody = document.getElementById('orders-table-body');
+      if (liveOrders.length === 0) {
+        tbody.innerHTML = `<tr class="border-b border-white/5"><td colspan="6" class="text-center py-6 text-gray-500 italic">No online orders placed yet in this session.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = liveOrders.map(o => `
+        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+          <td class="py-4 px-4 font-bold text-[#d4af37]">${o.id}</td>
+          <td class="py-4 px-4 font-semibold text-white">${o.name}</td>
+          <td class="py-4 px-4 text-gray-300">${o.phone}</td>
+          <td class="py-4 px-4 text-white">${o.dish}</td>
+          <td class="py-4 px-4 font-bold gold-gradient-text">${o.price}</td>
+          <td class="py-4 px-4"><span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] uppercase font-bold px-3 py-1 rounded-full">${o.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Three.js Gold Particles
+    const canvas = document.querySelector('#webgl-bg');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 25;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const particlesCount = 500;
+    const posArray = new Float32Array(particlesCount * 3);
+    for(let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 60;
+    }
+    const particlesGeometry = new THREE.BufferGeometry();
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.12,
+      color: 0xd4af37,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending
+    });
+
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+    });
+
+    function animate() {
+      particlesMesh.rotation.y += 0.002 + mouseX;
+      particlesMesh.rotation.x += 0.001 + mouseY;
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
